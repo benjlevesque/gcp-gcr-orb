@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  gcp-gcr: circleci/gcp-gcr@<<pipeline.parameters.dev-orb-version>>
+  gcp-gcr: benjlevesque/gcp-gcr@<<pipeline.parameters.dev-orb-version>>
   orb-tools: circleci/orb-tools@9.1
 
 # Integration tests
@@ -65,7 +65,7 @@ workflows:
           type: approval
           requires: *orb_prep_jobs
       - orb-tools/publish-dev:
-          orb-name: circleci/gcp-gcr
+          orb-name: benjlevesque/gcp-gcr
           context: orb-publishing
           requires:
             - approve_for_testing
@@ -108,11 +108,9 @@ workflows:
       # be skipped.
       # e.g. [semver:patch] will cause a patch version to be published.
       - orb-tools/dev-promote-prod-from-commit-subject:
-          orb-name: circleci/gcp-gcr
+          orb-name: benjlevesque/gcp-gcr
           context: orb-publishing
           add-pr-comment: true
-          bot-token-variable: GHI_TOKEN
-          bot-user: cpe-bot
           fail-if-semver-not-indicated: true
           publish-version-tag: true
           ssh-fingerprints: be:d5:b0:4f:41:21:6a:0b:77:19:c4:35:22:a5:1b:11
