@@ -1,14 +1,14 @@
 version: 2.1
 
 orbs:
-  gcp-gcr: benjlevesque/gcp-gcr@<<pipeline.parameters.dev-orb-version>>
+  # gcp-gcr: benjlevesque/gcp-gcr@<<pipeline.parameters.dev-orb-version>>
   orb-tools: circleci/orb-tools@9.1
 
 # Integration tests
-integration_tests: &integration_tests
-  [
-    build-and-push-job
-  ]
+# integration_tests: &integration_tests
+#   [
+#     build-and-push-job
+#   ]
 orb_prep_jobs: &orb_prep_jobs
   [
     orb-tools/lint,
@@ -27,35 +27,35 @@ parameters:
     default: "dev:alpha"
 
 jobs:
-  integration-tests-1:
-    executor: gcp-gcr/default
-    steps:
-      # test orb commands
-      - checkout
-      - gcp-gcr/gcr-auth
+  # integration-tests-1:
+  #   executor: gcp-gcr/default
+  #   steps:
+  #     # test orb commands
+  #     - checkout
+  #     - gcp-gcr/gcr-auth
 
-      - gcp-gcr/build-image:
-          registry-url: us.gcr.io
-          image: sample-image
-          tag: ${CIRCLE_SHA1:0:7}.$CIRCLE_BUILD_NUMBER
-          path: ~/project/sample/
-          docker-context: ~/project/sample/
+  #     - gcp-gcr/build-image:
+  #         registry-url: us.gcr.io
+  #         image: sample-image
+  #         tag: ${CIRCLE_SHA1:0:7}.$CIRCLE_BUILD_NUMBER
+  #         path: ~/project/sample/
+  #         docker-context: ~/project/sample/
 
-      - gcp-gcr/push-image:
-          registry-url: us.gcr.io
-          image: sample-image
-          tag: ${CIRCLE_SHA1:0:7}.$CIRCLE_BUILD_NUMBER
+  #     - gcp-gcr/push-image:
+  #         registry-url: us.gcr.io
+  #         image: sample-image
+  #         tag: ${CIRCLE_SHA1:0:7}.$CIRCLE_BUILD_NUMBER
 
-      - gcp-gcr/tag-image:
-          registry-url: us.gcr.io
-          image: sample-image
-          source-tag: ${CIRCLE_SHA1:0:7}.$CIRCLE_BUILD_NUMBER
-          target-tag: tagged.$CIRCLE_BUILD_NUMBER
+  #     - gcp-gcr/tag-image:
+  #         registry-url: us.gcr.io
+  #         image: sample-image
+  #         source-tag: ${CIRCLE_SHA1:0:7}.$CIRCLE_BUILD_NUMBER
+  #         target-tag: tagged.$CIRCLE_BUILD_NUMBER
 
 workflows:
   # This `lint-pack_validate_publish-dev` workflow will run on any commit.
   lint_pack-validate_publish-dev:
-    unless: << pipeline.parameters.run-integration-tests >>
+    #unless: << pipeline.parameters.run-integration-tests >>
     jobs:
       - orb-tools/lint
       - orb-tools/shellcheck:
@@ -81,25 +81,25 @@ workflows:
   # when the run-integration-tests pipeline parameter is set to true.
   # It is meant to be triggered by the "trigger-integration-tests-workflow"
   # job, and run tests on <your orb>@dev:${CIRCLE_SHA1:0:7}.
-  integration-tests_prod-release:
-    when: << pipeline.parameters.run-integration-tests >>
-    jobs:
+  # integration-tests_prod-release:
+  #   when: << pipeline.parameters.run-integration-tests >>
+  #   jobs:
 
-      - integration-tests-1
-      - gcp-gcr/build-and-push-image:
-          name: build-and-push-job
-          registry-url: us.gcr.io
-          image: sample-image
-          tag: ${CIRCLE_SHA1:0:7}.$CIRCLE_BUILD_NUMBER
-          digest-path: /tmp/digest.txt
-          path: ~/project/sample/
-          docker-context: ~/project/sample/
-          requires:
-            - integration-tests-1
-          post-steps:
-            - run:
-                command: |
-                  echo "Digest is: $(</tmp/digest.txt)"
+  #     - integration-tests-1
+  #     - gcp-gcr/build-and-push-image:
+  #         name: build-and-push-job
+  #         registry-url: us.gcr.io
+  #         image: sample-image
+  #         tag: ${CIRCLE_SHA1:0:7}.$CIRCLE_BUILD_NUMBER
+  #         digest-path: /tmp/digest.txt
+  #         path: ~/project/sample/
+  #         docker-context: ~/project/sample/
+  #         requires:
+  #           - integration-tests-1
+  #         post-steps:
+  #           - run:
+  #               command: |
+  #                 echo "Digest is: $(</tmp/digest.txt)"
 
       # publish a semver version of the orb. relies on
       # the commit subject containing the text "[semver:patch|minor|major|skip]"
@@ -114,7 +114,7 @@ workflows:
           fail-if-semver-not-indicated: true
           publish-version-tag: true
           ssh-fingerprints: be:d5:b0:4f:41:21:6a:0b:77:19:c4:35:22:a5:1b:11
-          requires: *integration_tests
+          #requires: *integration_tests
           filters:
             branches:
               only: master
